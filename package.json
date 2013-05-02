@@ -1,0 +1,26 @@
+{
+  "name": "monsieur-bot",
+  "version": "0.0.1",
+  "author": "Pedro Ferreira <pedro@dete.st>",
+  "description": "Simple XMPP MUC bot",
+  "main": "./lib/monsieur-bot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pferreir/monsieur-bot"
+  },
+  "keywords": [
+    "xmpp",
+    "bot",
+    "web"
+  ],
+  "dependencies" : {
+    "node-xmpp": "*",
+    "node-stringprep": "*",
+    "underscore": "*",
+    "sqlite3": "*"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
