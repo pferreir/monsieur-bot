@@ -9,7 +9,8 @@
     "url": "https://github.com/pferreir/monsieur-bot"
   },
   "bin": {
-    "mbot": "./bin/mbot"
+    "mbot": "./bin/mbot",
+    "mbot-web": "./bin/mbot-web"
   },
   "keywords": [
     "xmpp",
@@ -22,7 +23,9 @@
     "underscore": "*",
     "sqlite3": "*",
     "request": "*",
-    "promised-io": "*"
+    "promised-io": "*",
+    "express": "*",
+    "hbs": "*"
   },
   "license": "MIT",
   "engines": {

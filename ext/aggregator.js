@@ -3,14 +3,16 @@ var sqlite3 = require('sqlite3').verbose(),
     request = require('request'),
     utils = require('../lib/utils'),
     imgur = require('./imgur'),
-    Deferred = require("promised-io/promise").Deferred;
+    Deferred = require("promised-io/promise").Deferred,
+    all = require("promised-io/promise").all;
 
 
 var SQL_SCHEMA = "CREATE TABLE IF NOT EXISTS urls (" +
   "id INTEGER PRIMARY KEY AUTOINCREMENT," +
   "ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
   "url TEXT," +
-  "data TEXT);";
+  "data TEXT," +
+  "type TEXT);";
 
 var URL_RE = /(http:|https:)\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}(\:[0-9]+)?\b(\/[-a-zA-Z0-9@:%_\+.‌​~#?&//=]*)?/gi,
   HTML_TITLE_RE = /\<title\>(.*)<\/title>/i
@@ -30,7 +32,7 @@ function get_url_info(url) {
 
       if (info.type == 'text/html') {
         var m = body.match(HTML_TITLE_RE);
-        info.title = m ? m[1].slice(0,30) : '';
+        info.title = m ? m[1].slice(0, 100) : '';
       }
 
       deferred.resolve(info)
@@ -46,22 +48,20 @@ function get_url_info(url) {
   return deferred.promise;
 }
 
-function process_url(url, bot) {
+function process_url(url, formats, bot) {
   var deferred = new Deferred();
-  get_url_info(url).then(function(info) {
-    if (bot.config.imgur && info.type.indexOf('image/') == 0) {
-      imgur.upload_image_url(url, bot.config.imgur).then(function(result) {
-        info.imgur = result.data;
-        deferred.resolve(info);
 
-        utils.log.info("Image saved at " + result.data.link);
-        if (bot.config.imgur.annoying) {
-          bot.muc.say("-> " + result.data.link);
-        }
-      })
-    } else {
-      deferred.resolve(info);
-    }
+  get_url_info(url).then(function(info) {
+    all(_(formats).map(function(format) {
+      var d = new Deferred();
+      format.process(url, info, bot, d)
+      return d.promise;
+    })).then(function(results) {
+      // find out which type has been assigned
+      // (from all processed formats)
+      var r_type = _(results).find(function(r) { return !!r; });
+      deferred.resolve([info, r_type]);
+    });
   }, function(error) {
     deferred.reject(error);
     utils.log.warning(error);
@@ -73,6 +73,10 @@ module.exports = function(bot) {
 
 	var db = new sqlite3.Database(bot.config.db_path);
 
+  var formats = _(bot.config.formats).map(function(fmt) {
+    return require('./' + fmt);
+  });
+
 	check_db(db);
 
 	bot.muc.on('message', function(message, from) {
@@ -80,10 +84,14 @@ module.exports = function(bot) {
 
 		if (m) {
       _.each(m, function(url) {
-        process_url(url, bot).then(function(info) {
-          db.run("INSERT INTO urls (url, data) VALUES ($url, $data)", {
+        process_url(url, formats, bot).then(function(r) {
+          var info = r[0],
+              r_type = r[1];
+
+          db.run("INSERT INTO urls (url, data, type) VALUES ($url, $data, $type)", {
             $url: url,
-            $data: JSON.stringify(info)
+            $data: JSON.stringify(info),
+            $type: r_type
           });
         });
 	    });
