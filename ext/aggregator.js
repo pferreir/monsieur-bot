@@ -14,7 +14,7 @@ var SQL_SCHEMA = "CREATE TABLE IF NOT EXISTS urls (" +
   "data TEXT," +
   "type TEXT);";
 
-var URL_RE = /(http:|https:)\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}(\:[0-9]+)?\b(\/[-a-zA-Z0-9@:%_\+.‌​~#?&//=]*)?/gi,
+var URL_RE = /((?:http:|https:)\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}(?:\:[0-9]+)?\b(?:\/[-a-zA-Z0-9@:%_\+.‌​~#?&//=]*)?)/i,
   HTML_TITLE_RE = /\<title\>(.*)<\/title>/i
 
 function check_db(db) {
@@ -80,19 +80,19 @@ module.exports = function(bot) {
 	check_db(db);
 
 	bot.muc.on('message', function(message, from) {
-		var m = message.match(URL_RE);
+		var m = message.match(bot.config.catch_all ? URL_RE :
+        new RegExp('^:.*' + URL_RE.source, 'i'));
 
 		if (m) {
-      _.each(m, function(url) {
-        process_url(url, formats, bot).then(function(r) {
-          var info = r[0],
-              r_type = r[1];
+      var url = m[1];
+      process_url(url, formats, bot).then(function(r) {
+        var info = r[0],
+            r_type = r[1];
 
-          db.run("INSERT INTO urls (url, data, type) VALUES ($url, $data, $type)", {
-            $url: url,
-            $data: JSON.stringify(info),
-            $type: r_type
-          });
+        db.run("INSERT INTO urls (url, data, type) VALUES ($url, $data, $type)", {
+          $url: url,
+          $data: JSON.stringify(info),
+          $type: r_type
         });
 	    });
     }
