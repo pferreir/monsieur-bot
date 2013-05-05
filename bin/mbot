@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+var xmpp = require('node-xmpp'),
+    bot = require('../lib/monsieur-bot'),
+    utils = require('../lib/utils'),
+    _ = require('underscore');
+
+function main() {
+
+	var config = utils.load_config('./config.json');
+
+	// set events
+	var b = new bot.Bot(config);
+
+	b.on('online', function() {
+		utils.log.bind_bot(b);
+
+		if (b.config.owner) {
+			_(b.config.notify_owner).each(function(level) {
+				utils.log.bind_jid(level, b.config.owner);
+			});
+		}
+	});
+
+	b.initialize();
+}
+
+main();
