@@ -18,7 +18,7 @@ var URL_RE = /((?:http:|https:)\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}
   HTML_TITLE_RE = /\<title\>(.*)<\/title>/i
 
 function check_db(db) {
-	db.run(SQL_SCHEMA);
+  db.run(SQL_SCHEMA);
 }
 
 function get_url_info(url) {
@@ -71,19 +71,19 @@ function process_url(url, formats, bot) {
 
 module.exports = function(bot) {
 
-	var db = new sqlite3.Database(bot.config.db_path);
+  var db = new sqlite3.Database(bot.config.db_path);
 
   var formats = _(bot.config.formats).map(function(fmt) {
     return require('./' + fmt);
   });
 
-	check_db(db);
+  check_db(db);
 
-	bot.muc.on('message', function(message, from) {
-		var m = message.match(bot.config.catch_all ? URL_RE :
+  bot.muc.on('message', function(message, from) {
+    var m = message.match(bot.config.catch_all ? URL_RE :
         new RegExp('^:.*' + URL_RE.source, 'i'));
 
-		if (m) {
+    if (m) {
       var url = m[1];
       process_url(url, formats, bot).then(function(r) {
         var info = r[0],
@@ -94,7 +94,7 @@ module.exports = function(bot) {
           $data: JSON.stringify(info),
           $type: r_type
         });
-	    });
+      });
     }
   });
 };

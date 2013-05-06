@@ -7,22 +7,22 @@ var xmpp = require('node-xmpp'),
 
 function main() {
 
-	var config = utils.load_config('./config.json');
+  var config = utils.load_config('./config.json');
 
-	// set events
-	var b = new bot.Bot(config);
+  // set events
+  var b = new bot.Bot(config);
 
-	b.on('online', function() {
-		utils.log.bind_bot(b);
+  b.on('online', function() {
+    utils.log.bind_bot(b);
 
-		if (b.config.owner) {
-			_(b.config.notify_owner).each(function(level) {
-				utils.log.bind_jid(level, b.config.owner);
-			});
-		}
-	});
+    if (b.config.owner) {
+      _(b.config.notify_owner).each(function(level) {
+        utils.log.bind_jid(level, b.config.owner);
+      });
+    }
+  });
 
-	b.initialize();
+  b.initialize();
 }
 
 main();

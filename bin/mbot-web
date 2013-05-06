@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 var express = require('express'),
-    http = require('request'),
-    util = require('util'),
-    utils = require('../lib/utils'),
-    qs = require('querystring'),
-    _ = require("underscore"),
-    path = require("path"),
-    sqlite3 = require("sqlite3").verbose();
+  http = require('request'),
+  util = require('util'),
+  utils = require('../lib/utils'),
+  qs = require('querystring'),
+  _ = require("underscore"),
+  path = require("path"),
+  sqlite3 = require("sqlite3").verbose();
 
 var app = express();
 
@@ -24,54 +24,54 @@ var app = express();
 // }
 
 app.configure(function() {
-    var hbs = require('hbs');
+  var hbs = require('hbs');
 
-    // setup_assets(app);
+  // setup_assets(app);
 
-    // hbs.registerHelper('renderStyles', function() {
-    //     return app.locals.renderStyles();
-    // });
+  // hbs.registerHelper('renderStyles', function() {
+  //     return app.locals.renderStyles();
+  // });
 
-    // hbs.registerHelper('renderJs', function() {
-    //     return app.locals.renderJs();
-    // });
+  // hbs.registerHelper('renderJs', function() {
+  //     return app.locals.renderJs();
+  // });
 
-    app.set('view engine', 'html');
-    app.set('views', path.join(__dirname, '../web/views'));
-    app.engine('html', hbs.__express);
-    app.use('/static', express.static(path.join(__dirname, '../web/static')));
+  app.set('view engine', 'html');
+  app.set('views', path.join(__dirname, '../web/views'));
+  app.engine('html', hbs.__express);
+  app.use('/static', express.static(path.join(__dirname, '../web/static')));
 })
 
 app.get('/', function(req, res) {
-    var now = new Date();
-    res.redirect('/d/' + now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate());
+  var now = new Date();
+  res.redirect('/d/' + now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate());
 });
 
 app.get(/^\/d\/(\d{4})-(\d{1,2})-(\d{1,2})$/, function(req, res) {
-    var db = app.get('db');
+  var db = app.get('db');
 
-    var url_date = _(req.params).map(function(atom) {
-        return atom.length == 1 ? '0' + atom : atom;
-    }).join('-')
+  var url_date = _(req.params).map(function(atom) {
+    return atom.length == 1 ? '0' + atom : atom;
+  }).join('-')
 
-    console.log(url_date)
+  console.log(url_date)
 
-    db.all("SELECT * FROM urls WHERE date(ts) = $date ORDER BY ts DESC;", {
-        $date: url_date
-    }, function(err, rows) {
-        res.render('index.html', {data: _(rows).map(resolve_type)});
-    })
+  db.all("SELECT * FROM urls WHERE date(ts) = $date ORDER BY ts DESC;", {
+    $date: url_date
+  }, function(err, rows) {
+    res.render('index.html', {data: _(rows).map(resolve_type)});
+  })
 });
 
 
 function main() {
-    var config = utils.load_config('./config.json');
-    var db = new sqlite3.Database(config.db_path);
+  var config = utils.load_config('./config.json');
+  var db = new sqlite3.Database(config.db_path);
 
-    app.set('db', db);
+  app.set('db', db);
 
-    console.log("NODE_ENV: " + app.get('env'))
-    app.listen(process.env.VCAP_APP_PORT || 3000);
+  console.log("NODE_ENV: " + app.get('env'))
+  app.listen(process.env.VCAP_APP_PORT || 3000);
 }
 
 main();
