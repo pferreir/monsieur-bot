@@ -4,40 +4,42 @@ var request = require('request'),
     _ = require("underscore");
 
 
-function upload_image_url(url, options) {
-  var deferred = new Deferred();
-
-  request.post('https://api.imgur.com/3/image', {
-    headers: {'Authorization': 'Client-Id ' + options.client_id},
-    form: _(options || {}).extend({
-      image: url,
-      type: 'url'
-    })
-  }, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      deferred.resolve(JSON.parse(body), response);
-    } else {
-      deferred.reject(error, response, body)
-      utils.log.error(url, response.statusCode, error, body)
-    }
-  })
-  return deferred.promise;
+function Imgur(bot) {
+  this.bot = bot;
 }
 
+_.extend(Imgur.prototype, {
+  upload_image_url: function(url, options) {
+    var deferred = new Deferred();
 
-module.exports = {
-  upload_image_url: upload_image_url,
+    request.post('https://api.imgur.com/3/image', {
+      headers: {'Authorization': 'Client-Id ' + options.client_id},
+      form: _(options || {}).extend({
+        image: url,
+        type: 'url'
+      })
+    }, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        utils.log.info("Image saved at " + result.data.link);
+        deferred.resolve(result, response);
+      } else {
+        deferred.reject(error, response, body)
+        utils.log.error(url, response.statusCode, error, body)
+      }
+    })
+    return deferred.promise;
+  },
 
   process: function(url, info, bot, promise) {
     if (bot.config.imgur && info.type.indexOf('image/') == 0) {
-      upload_image_url(url, {
+      this.upload_image_url(url, {
         album: bot.config.imgur.delete_hash,
         client_id: bot.config.imgur.client_id
       }).then(function(result) {
         info.imgur = result.data;
         promise.resolve("imgur");
 
-        utils.log.info("Image saved at " + result.data.link);
         if (bot.config.annoying) {
           bot.muc.say("-> " + result.data.link);
         }
@@ -45,9 +47,17 @@ module.exports = {
     } else {
       promise.resolve(null);
     }
-  },
-
-  render: function(url, info, ts) {
-    // TODO
   }
-}
+});
+
+module.exports = function(bot) {
+  var imgur = new Imgur(bot);
+
+  bot.modules.imgur = imgur;
+
+  bot.modules.aggregator.on('url_id', function(url, info, bot) {
+    var deferred = new Deferred();
+    imgur.process(url, info, bot, deferred)
+    return deferred.promise;
+  });
+};
