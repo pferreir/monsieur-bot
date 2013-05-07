@@ -15,8 +15,7 @@ var SQL_SCHEMA = "CREATE TABLE IF NOT EXISTS urls (" +
   "data TEXT," +
   "type TEXT);";
 
-var URL_RE = /((?:http:|https:)\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}(?:\:[0-9]+)?\b(?:\/[-a-zA-Z0-9@:%_\+.‌​~#?&//=]*)?)/i,
-  HTML_TITLE_RE = /\<title\>(.*)<\/title>/i
+var HTML_TITLE_RE = /\<title\>(.*)<\/title>/i
 
 function check_db(db) {
   db.run(SQL_SCHEMA);
@@ -114,7 +113,7 @@ module.exports = function(bot) {
 
   bot.modules.aggregator = aggregator;
 
-  bot.cmd.add('+', URL_RE, function(from, args) {
+  bot.cmd.add('+', utils.URL_RE, function(from, args) {
     aggregator.title_url(args, this, this.muc).then(function(r) {
       var info = r[0],
       r_type = r[1];
@@ -123,7 +122,7 @@ module.exports = function(bot) {
     });
   }, ":+ <url>", "Adds URL to aggregator");
 
-  bot.cmd.add('?', URL_RE, function(from, args) {
+  bot.cmd.add('?', utils.URL_RE, function(from, args) {
     aggregator.title_url(args, this, this.muc);
   }, ":? <url>", "Retrieves title of resource");
 };
