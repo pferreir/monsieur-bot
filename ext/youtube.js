@@ -40,9 +40,10 @@ module.exports = function(bot) {
     return deferred.promise;
   });
 
-  bot.modules.aggregator.on('pre_add_url', function(url, info, r_type) {
+  bot.modules.aggregator.on('url_pre_add', function(url, info, r_type) {
     var deferred = new Deferred();
-    if (bot.config.imgur && bot.modules.imgur && bot.config.youtube.upload_images) {
+    if (r_type == 'youtube' && bot.config.imgur && bot.modules.imgur
+        && bot.config.youtube.upload_images) {
       bot.modules.imgur.upload_image_url(info.youtube.media$group.media$thumbnail[2].url, {
         album: bot.config.imgur.delete_hash,
         client_id: bot.config.imgur.client_id,

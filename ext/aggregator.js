@@ -3,7 +3,6 @@ var sqlite3 = require('sqlite3').verbose(),
     request = require('request'),
     util = require('util'),
     utils = require('../lib/utils'),
-    imgur = require('./imgur'),
     Deferred = require("promised-io/promise").Deferred,
     events = require('events'),
     all = require("promised-io/promise").all;
@@ -50,10 +49,12 @@ _.extend(Aggregator.prototype, {
         deferred.resolve(info)
       } else if (!error) {
         deferred.reject({
-          'error': response.statusCode
+          'status': response.statusCode
         });
       } else {
-        utils.log.warning(error, url)
+        deferred.reject({
+          'error': error
+        })
       }
     })
 
@@ -72,20 +73,27 @@ _.extend(Aggregator.prototype, {
         // (from all processed formats)
         var r_type = _(results).find(function(r) { return !!r; });
 
-        utils.log.info("> " + info.title);
-        muc.say('> ' + info.title);
+        // if no title is available, use content-type
+        var title = (info.title || info.type);
+        utils.log.info("> " + title);
+        muc.say('> ' + title);
 
         deferred.resolve([info, r_type]);
       });
-    }, function(error) {
-      deferred.reject(error);
-      utils.log.warning(error);
+    }, function(res) {
+      if (res.status) {
+        muc.say('!> ' + res.status)
+      } else {
+        muc.say('!> Error resolving URL')
+        utils.log.warning(res.error);
+      }
+      deferred.resolve(res);
     });
     return deferred.promise;
   },
 
   add_url: function(db, url, info, r_type) {
-    all(_(this.listeners('pre_add_url')).each(function(listener){
+    all(_(this.listeners('url_pre_add')).each(function(listener){
       listener(url, info, r_type);
     }));
     db.run("INSERT INTO urls (url, data, type) VALUES ($url, $data, $type)", {
@@ -113,9 +121,9 @@ module.exports = function(bot) {
 
       aggregator.add_url(db, args, info, r_type);
     });
-  });
+  }, ":+ <url>", "Adds URL to aggregator");
 
   bot.cmd.add('?', URL_RE, function(from, args) {
     aggregator.title_url(args, this, this.muc);
-  });
+  }, ":? <url>", "Retrieves title of resource");
 };

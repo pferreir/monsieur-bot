@@ -3,13 +3,28 @@
 var xmpp = require('node-xmpp'),
     bot = require('../lib/monsieur-bot'),
     utils = require('../lib/utils'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    path = require('path');
+    optimist = require('optimist')
+      .usage("Your XMPP gentleman\nUsage: $0")
+      .alias('c', 'config')
+      .default('c', './config.json')
+      .describe('c', 'Config file location');
 
 function main() {
 
-  var config = utils.load_config('./config.json');
+  var argv = optimist.argv;
 
-  // set events
+  console.log("Monsieur Bot à l'appareil!\n");
+
+  if (argv.h) {
+    console.log(optimist.help());
+    process.exit(1);
+  }
+
+  console.log('Using ' + path.resolve(argv.c));
+
+  var config = utils.load_config(argv.c);
   var b = new bot.Bot(config);
 
   b.on('online', function() {

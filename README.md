@@ -33,4 +33,6 @@ Just create a `config.json` file with the following data:
 
 # Running it
 
-    mbot
+    mbot -c /config/file/location.json
+
+`monsieur-bot` tries to access `config.json` in the current directory if the `-c` option is not specified.

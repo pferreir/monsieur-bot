@@ -41,7 +41,7 @@ _.extend(Imgur.prototype, {
         promise.resolve("imgur");
 
         if (bot.config.annoying) {
-          bot.muc.say("-> " + result.data.link);
+          bot.muc.say("> " + result.data.link);
         }
       })
     } else {
@@ -55,7 +55,7 @@ module.exports = function(bot) {
 
   bot.modules.imgur = imgur;
 
-  bot.modules.aggregator.on('url_id', function(url, info, bot) {
+  bot.modules.aggregator.on('url_pre_add', function(url, info, r_type) {
     var deferred = new Deferred();
     imgur.process(url, info, bot, deferred)
     return deferred.promise;
