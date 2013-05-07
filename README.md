@@ -18,7 +18,7 @@ Just create a `config.json` file with the following data:
         "muc_room": "muc_room@conference.example.com",
         "owner": "theowner@example.com",
         "notify_owner": ["error", "warning"],
-        "extensions": ["aggregator"],
+        "extensions": ["aggregator", "youtube", "imgur"],
         "annoying": true,
         "imgur": {
             "client_id": "imgur_client_id",
@@ -29,7 +29,6 @@ Just create a `config.json` file with the following data:
             "upload_images": true
         },
         "db_path": "/path/to/sqlite/db",
-        "catch_all": true
     }
 
 # Running it
