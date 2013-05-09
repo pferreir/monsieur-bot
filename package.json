@@ -18,6 +18,7 @@
     "web"
   ],
   "dependencies" : {
+    "eventemitter2": "*",
     "node-xmpp": "*",
     "node-stringprep": "*",
     "underscore": "*",
