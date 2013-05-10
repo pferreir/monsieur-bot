@@ -31,7 +31,7 @@ _.extend(Imgur.prototype, {
     return deferred.promise;
   },
 
-  process: function(url, info, bot, promise) {
+  process: function(ctx, url, info, bot, promise) {
     if (bot.config.imgur && info.type.indexOf('image/') == 0) {
       this.upload_image_url(url, {
         album: bot.config.imgur.delete_hash,
@@ -41,7 +41,7 @@ _.extend(Imgur.prototype, {
         promise.resolve("imgur");
 
         if (bot.config.annoying) {
-          bot.muc.say("> " + result.data.link);
+          ctx.result(result.data.link);
         }
       })
     } else {
@@ -55,9 +55,9 @@ module.exports = function(bot) {
 
   bot.modules.imgur = imgur;
 
-  bot.modules.aggregator.on('url_pre_add', function(url, info, r_type) {
+  bot.modules.aggregator.on('url_pre_add', function(ctx, url, info, r_type) {
     var deferred = new Deferred();
-    imgur.process(url, info, bot, deferred)
+    imgur.process(ctx, url, info, bot, deferred)
     return deferred.promise;
   });
 };

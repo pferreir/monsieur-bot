@@ -20,7 +20,7 @@ function get_video_info(vid, options) {
 }
 
 function process(url, info, bot, promise) {
-  var m = url.match(/^(?:(?:https?\:\/\/(?:www\.)?youtube\.com\/watch\?(.+))|(?:https?\:\/\/youtu\.be\/(.+)))\#.*/);
+  var m = url.match(/^(?:(?:https?\:\/\/(?:www\.)?youtube\.com\/watch\?(.+))|(?:https?\:\/\/youtu\.be\/(.+)))(\#.*)?$/);
 
   if (m) {
     var video_id = m[1] ? querystring.parse(m[1]).v : m[2];
@@ -38,13 +38,13 @@ function process(url, info, bot, promise) {
 }
 
 module.exports = function(bot) {
-  bot.modules.aggregator.on('url_id', function(url, info, bot) {
+  bot.modules.aggregator.on('url_id', function(ctx, url, info, bot) {
     var deferred = new Deferred();
     process(url, info, bot, deferred)
     return deferred.promise;
   });
 
-  bot.modules.aggregator.on('url_pre_add', function(url, info, r_type) {
+  bot.modules.aggregator.on('url_pre_add', function(ctx, url, info, r_type) {
     var deferred = new Deferred();
     if (r_type == 'youtube' && bot.config.imgur && bot.modules.imgur
         && bot.config.youtube.upload_images) {

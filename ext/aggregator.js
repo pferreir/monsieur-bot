@@ -60,13 +60,13 @@ _.extend(Aggregator.prototype, {
     return deferred.promise;
   },
 
-  title_url: function(url, bot, muc) {
+  title_url: function(ctx, url, bot) {
     var deferred = new Deferred();
     var aggregator = this;
 
     this.get_url_info(url).then(function(info) {
       all(_(aggregator.listeners('url_id')).map(function(listener) {
-        return listener(url, info, bot);
+        return listener(ctx, url, info, bot);
       })).then(function(results) {
         // find out which type has been assigned
         // (from all processed formats)
@@ -75,15 +75,15 @@ _.extend(Aggregator.prototype, {
         // if no title is available, use content-type
         var title = (info.title || info.type);
         utils.log.info("> " + title);
-        muc.say('> ' + title);
+        ctx.result(title);
 
         deferred.resolve([info, r_type]);
       });
     }, function(res) {
       if (res.status) {
-        muc.say('!> ' + res.status)
+        ctx.error(res.status)
       } else {
-        muc.say('!> Error resolving URL')
+        ctx.error('Error resolving URL')
         utils.log.warning(res.error);
       }
       deferred.resolve(res);
@@ -91,9 +91,9 @@ _.extend(Aggregator.prototype, {
     return deferred.promise;
   },
 
-  add_url: function(db, url, info, r_type) {
+  add_url: function(ctx, db, url, info, r_type) {
     all(_(this.listeners('url_pre_add')).each(function(listener){
-      listener(url, info, r_type);
+      listener(ctx, url, info, r_type);
     }));
     db.run("INSERT INTO urls (url, data, type) VALUES ($url, $data, $type)", {
       $url: url,
@@ -113,16 +113,16 @@ module.exports = function(bot) {
 
   bot.modules.aggregator = aggregator;
 
-  bot.cmd.add('+', utils.URL_RE, function(from, args) {
-    aggregator.title_url(args, this, this.muc).then(function(r) {
+  bot.cmd.add('+', utils.URL_RE, function(ctx, from, args) {
+    aggregator.title_url(ctx, args, this).then(function(r) {
       var info = r[0],
       r_type = r[1];
 
-      aggregator.add_url(db, args, info, r_type);
+      aggregator.add_url(ctx, db, args, info, r_type);
     });
   }, ":+ <url>", "Adds URL to aggregator");
 
-  bot.cmd.add('?', utils.URL_RE, function(from, args) {
-    aggregator.title_url(args, this, this.muc);
+  bot.cmd.add('?', utils.URL_RE, function(ctx, from, args) {
+    aggregator.title_url(ctx, args, this);
   }, ":? <url>", "Retrieves title of resource");
 };

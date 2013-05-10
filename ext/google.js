@@ -48,26 +48,26 @@ function shorten_url(url) {
 }
 
 module.exports = function(bot) {
-  bot.cmd.add('g', /.*/, function(from, args) {
+  bot.cmd.add('g', /.*/, function(ctx, from, args) {
     search(args).then(function(data) {
-      bot.muc.say("> " + data.entry.titleNoFormatting + " " + data.entry.url);
+      ctx.result(data.entry.titleNoFormatting + " " + data.entry.url);
 
       shorten_url(data.more_url).then(function(res){
-        bot.muc.say("> " + data.hits + " other results at " + res.id);
+        ctx.result("%s other results at %s", data.hits, res.id);
       }, function(err) {
         utils.warning(err);
-        bot.muc.say("> " + data.hits + " other results at " + data.more_url);
+        ctx.result("%s other results at %s", data.hits, data.more_url);
       })
     }, function(err) {
-      bot.muc.say('!> ' + err);
+      ctx.error(err);
     });
   }, ":g <term>", "Perform Google search, return 1st result");
 
-  bot.cmd.add('s', utils.URL_RE, function(from, args) {
+  bot.cmd.add('s', utils.URL_RE, function(ctx, from, args) {
     shorten_url(args).then(function(res) {
-      bot.muc.say('> ' + res.id)
+      ctx.result(res.id)
     }, function(err) {
-      bot.muc.say('!> ' + err);
+      ctx.error(err);
     })
   }, ":s <url>", "Shortens URL using goo.gl");
 };
