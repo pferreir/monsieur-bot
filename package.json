@@ -27,7 +27,8 @@
     "promised-io": "*",
     "express": "*",
     "hbs": "*",
-    "optimist": "*"
+    "optimist": "*",
+    "ltx": "*"
   },
   "license": "MIT",
   "engines": {

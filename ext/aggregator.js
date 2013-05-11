@@ -120,9 +120,9 @@ module.exports = function(bot) {
 
       aggregator.add_url(ctx, db, args, info, r_type);
     });
-  }, ":+ <url>", "Adds URL to aggregator");
+  }, "+ <url>", "Adds URL to aggregator");
 
   bot.cmd.add('?', utils.URL_RE, function(ctx, from, args) {
     aggregator.title_url(ctx, args, this);
-  }, ":? <url>", "Retrieves title of resource");
+  }, "? <url>", "Retrieves title of resource");
 };
