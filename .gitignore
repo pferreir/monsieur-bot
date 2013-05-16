@@ -16,3 +16,5 @@ npm-debug.log
 config.json
 node_modules
 test.db
+
+monsieur_bot.sublime*
