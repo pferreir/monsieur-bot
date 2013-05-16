@@ -29,7 +29,6 @@ function MUC(bot, muc_room) {
         utils.split_jid(bot.config.jid).toString()) {
       // We're online! (chat room)
       self.bot.emit('joined', muc_room);
-      console.log('aaaaa')
     }
   });
 }
