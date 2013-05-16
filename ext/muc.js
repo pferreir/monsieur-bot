@@ -1,7 +1,7 @@
 var xmpp = require('node-xmpp'),
     util = require('util'),
-    utils = require('./utils'),
-    context = require('./context'),
+    utils = require('../lib/utils'),
+    context = require('../lib/context'),
     _ = require('underscore');
 
 
@@ -11,7 +11,6 @@ function MUC(bot, muc_room) {
   this.room = muc_room;
 
   context.Context.call(this, this.room, 'muc', bot)
-  bot.add_context(this);
 
   this.bot = bot;
   this.config = bot.config;
@@ -30,6 +29,7 @@ function MUC(bot, muc_room) {
         utils.split_jid(bot.config.jid).toString()) {
       // We're online! (chat room)
       self.bot.emit('joined', muc_room);
+      console.log('aaaaa')
     }
   });
 }
@@ -62,6 +62,9 @@ _.extend(MUC.prototype, {
   }
 });
 
-module.exports = {
-  MUC: MUC
-}
+module.exports = function(bot) {
+  _(bot.config.muc_rooms).map(
+    function(room_name) {
+      bot.add_context(new MUC(bot, room_name));
+    });
+};

@@ -38,13 +38,13 @@ function process(url, info, bot, promise) {
 }
 
 module.exports = function(bot) {
-  bot.modules.aggregator.on('url_id', function(ctx, url, info, bot) {
+  bot.on('url_id', function(ctx, url, info, bot) {
     var deferred = new Deferred();
     process(url, info, bot, deferred)
     return deferred.promise;
   });
 
-  bot.modules.aggregator.on('url_pre_add', function(ctx, url, info, r_type) {
+  bot.on('url_pre_add', function(ctx, url, info, r_type) {
     var deferred = new Deferred();
     if (r_type == 'youtube' && bot.config.imgur && bot.modules.imgur
         && bot.config.youtube.upload_images) {
