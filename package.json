@@ -1,6 +1,6 @@
 {
   "name": "monsieur-bot",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "author": "Pedro Ferreira <pedro@dete.st>",
   "description": "Simple XMPP MUC bot",
   "main": "./lib/monsieur-bot",
@@ -9,8 +9,7 @@
     "url": "https://github.com/pferreir/monsieur-bot"
   },
   "bin": {
-    "mbot": "./bin/mbot",
-    "mbot-web": "./bin/mbot-web"
+    "mbot": "./bin/mbot"
   },
   "keywords": [
     "xmpp",
