@@ -21,11 +21,9 @@
     "node-xmpp": "*",
     "node-stringprep": "*",
     "underscore": "*",
-    "sqlite3": "*",
     "request": "*",
     "promised-io": "*",
     "express": "*",
-    "hbs": "*",
     "optimist": "*",
     "ltx": "*"
   },
