@@ -12,7 +12,6 @@ function MUC(bot, muc_room) {
 
   context.Context.call(this, this.room, 'muc', bot)
 
-  this.bot = bot;
   this.config = bot.config;
 
   var self = this;
