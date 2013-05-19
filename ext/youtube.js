@@ -44,7 +44,7 @@ module.exports = function(bot) {
     return deferred.promise;
   });
 
-  bot.on('url_pre_add', function(ctx, url, info, r_type) {
+  bot.on('url_add', function(ctx, url, info, r_type) {
     var deferred = new Deferred();
     if (r_type == 'youtube' && bot.config.imgur && bot.modules.imgur
         && bot.config.youtube.upload_images) {

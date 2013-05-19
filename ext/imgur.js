@@ -55,7 +55,7 @@ module.exports = function(bot) {
 
   bot.modules.imgur = imgur;
 
-  bot.on('url_pre_add', function(ctx, url, info, r_type) {
+  bot.on('url_add', function(ctx, url, info, r_type) {
     var deferred = new Deferred();
     imgur.process(ctx, url, info, bot, deferred)
     return deferred.promise;

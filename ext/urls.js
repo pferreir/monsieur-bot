@@ -67,8 +67,25 @@ function title_url(ctx, url, bot) {
   return deferred.promise;
 }
 
+function add_url(bot, ctx, url, info, r_type) {
+  all(_(bot.listeners('url_add')).each(function(listener){
+    listener(ctx, url, info, r_type);
+  }));
+}
+
 module.exports = function(bot) {
+
   bot.cmd.add('?', utils.URL_RE, function(ctx, from, args) {
-    title_url(ctx, args, this);
+    title_url(ctx, args, bot);
   }, "? <url>", "Retrieves title of resource");
+
+  bot.cmd.add('+', utils.URL_RE, function(ctx, from, args) {
+    title_url(ctx, args, bot).then(function(r) {
+      var info = r[0],
+      r_type = r[1];
+
+      add_url(bot, ctx, args, info, r_type);
+    });
+  }, "+ <url>", "Adds URL to aggregator");
+
 };
