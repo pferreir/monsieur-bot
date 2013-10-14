@@ -1,6 +1,6 @@
 {
   "name": "monsieur-bot",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "author": "Pedro Ferreira <pedro@dete.st>",
   "description": "Simple XMPP MUC bot",
   "main": "./lib/monsieur-bot",
